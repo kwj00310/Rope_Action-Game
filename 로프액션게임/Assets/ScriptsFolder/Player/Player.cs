@@ -21,7 +21,6 @@ public class Player : MonoBehaviour
     bool JumpFlag;
     bool DownFlag;
     bool jumpRequest = false;
-    public float StopSpeed = 0;
     float lastSpeed;
     //º¤ÅÍ º¯¼ö
     Vector2 movement;
@@ -58,7 +57,7 @@ public class Player : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        string layerName=LayerMask.LayerToName(collision.gameObject.layer);
+        string layerName= LayerMask.LayerToName(collision.gameObject.layer);
         if (layerName=="Platform")
         {
             JumpFlag = false;
