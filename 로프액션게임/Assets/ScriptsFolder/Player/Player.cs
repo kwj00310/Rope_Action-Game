@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SearchService;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -14,6 +15,7 @@ public class Player : MonoBehaviour
     //참조컴포넌트 관련
     Rigidbody2D rb;
     Animator animator;
+    public Transform pos;
     //플래그 변수
     bool WalkFlag;
     bool turnFlag;
@@ -21,8 +23,11 @@ public class Player : MonoBehaviour
     bool JumpFlag;
     bool DownFlag;
     bool jumpRequest = false;
-    float lastSpeed;
+    float curTime;
+    float CoolTime=0.5f;
     //벡터 변수
+    public Vector2 RightAttackBoxSize;
+    public Vector2 AttackBoxSize;
     Vector2 movement;
     Vector2 PlayerSize;
     void Start()
@@ -35,18 +40,16 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (curTime > 0) curTime -= Time.deltaTime; 
         movement.x = 0;
         movement.y = rb.velocity.y;
         WalkFlag = false;
         RunFlag = false;
-
-        float currentSpeed = Mathf.Abs(rb.velocity.x);
-        
- 
         GetComponent<SpriteRenderer>().flipX = turnFlag;
         IsDown();
         CheckMoving();
         CheckAnimator();
+        Attack();
     }
     void Jump()
     {
@@ -84,7 +87,7 @@ public class Player : MonoBehaviour
     }
     void IsDown()
     {
-        if(rb.velocity.y<-4f) 
+        if(rb.velocity.y<-7f) 
         {
             JumpFlag = false;
             DownFlag = true;
@@ -105,6 +108,37 @@ public class Player : MonoBehaviour
         Speed = Input.GetKey(KeyCode.LeftShift) ? 5 : 2.5f;
         
     }
+    //공격모션 출력 메서드
+    void Attack()
+    {
+        if (Input.GetMouseButtonDown(0)&&curTime<=0) 
+        {
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+            animator.Play("OnePunch");
+            curTime=CoolTime;
+            Vector2 Attack_pos= pos.transform.position;
+            if (turnFlag==true)
+            {
+                Attack_pos += new Vector2(-0.432f, 0);
+            }
+            Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(Attack_pos, AttackBoxSize, 0);
+            foreach (Collider2D obj in collider2Ds)
+            {
+                if (obj.tag == "Enemy")
+                {
+                    obj.GetComponent<BotA>().TakeDamage(1);
+                }
+            }
+        }
+   
+    }
+    // 어택에서 푸는 메서드
+    void ResetFreeze()
+    {
+        rb.constraints =RigidbodyConstraints2D.FreezeRotation;
+        animator.SetTrigger("End Motion");
+    }
+
     void CheckAnimator()
     {
         if (Input.GetKey(KeyCode.LeftShift)) RunFlag = true;
@@ -114,6 +148,16 @@ public class Player : MonoBehaviour
         animator.SetBool("Is walk", WalkFlag);
         animator.SetBool("Is Jump", JumpFlag);
         animator.SetBool("Is Down", DownFlag);
+    }
+    private void OnDrawGizmos()
+    {
+        Vector2 Attack_pos = pos.transform.position;
+        if (turnFlag == true)
+        {
+            Attack_pos += new Vector2(-0.432f, 0);
+        }
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireCube(Attack_pos, AttackBoxSize);
     }
     private void FixedUpdate()
 

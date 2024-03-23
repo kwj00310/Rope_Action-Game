@@ -12,15 +12,12 @@ public class BotA : MonoBehaviour
     bool flipFlag=false;
     public int NextMove;
     
-    private void Awake()
-    {
-        animator = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody2D>();
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-    }
     void Start()
     {
         Think();
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody2D>();
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
 
     private void Update()
@@ -35,6 +32,10 @@ public class BotA : MonoBehaviour
             WalkFlag = true;
         }
         animator.SetBool("Is Walk", WalkFlag);
+        if(Hp<=0)
+        { 
+            Destroy(this.gameObject);
+        } 
     }
 
     void FixedUpdate()
@@ -53,5 +54,20 @@ public class BotA : MonoBehaviour
     {
         NextMove = Random.Range(-2, 2);
         Invoke("Think", 5);
+    }
+    public int Hp = 3;
+
+    public void TakeDamage(int damage)
+    {
+        if (animator==null)
+        {
+            Debug.LogError("애니메이터 오류!");
+        }
+        animator.SetTrigger("Is Hit");
+        Hp -= damage;
+    }
+    void ReturnIdle()
+    {
+        animator.SetTrigger("Is not Hit");
     }
 }
