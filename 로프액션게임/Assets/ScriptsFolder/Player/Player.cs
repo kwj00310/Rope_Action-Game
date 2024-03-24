@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
+    public static float HP=100;
     //이동관련 변수
     float Speed;
     float JumpPower = 4;
@@ -50,6 +51,7 @@ public class Player : MonoBehaviour
         CheckMoving();
         CheckAnimator();
         Attack();
+        CheckHealth();
     }
     void Jump()
     {
@@ -158,6 +160,13 @@ public class Player : MonoBehaviour
         }
         Gizmos.color = Color.blue;
         Gizmos.DrawWireCube(Attack_pos, AttackBoxSize);
+    }
+    void CheckHealth()
+    {
+        if(HP<=0)
+        {
+            gameObject.SetActive(false);
+        }
     }
     private void FixedUpdate()
 

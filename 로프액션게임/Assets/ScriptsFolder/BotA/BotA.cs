@@ -63,7 +63,7 @@ public class BotA : MonoBehaviour
         {
             Debug.LogError("애니메이터 오류!");
         }
-        animator.SetTrigger("Is Hit");
+        animator.Play("Hit");
         Hp -= damage;
     }
     void ReturnIdle()
