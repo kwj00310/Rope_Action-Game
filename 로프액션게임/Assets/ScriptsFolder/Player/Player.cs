@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Burst.CompilerServices;
 using UnityEditor.SearchService;
 using UnityEditorInternal;
 using UnityEngine;
@@ -23,9 +24,10 @@ public class Player : MonoBehaviour
     bool RunFlag;
     bool JumpFlag;
     bool DownFlag;
+    bool WallFlag;
     bool jumpRequest = false;
     float curTime;
-    float CoolTime=0.5f;
+    float CoolTime=0.1f;
     //벡터 변수
     public Vector2 RightAttackBoxSize;
     public Vector2 AttackBoxSize;
@@ -49,9 +51,47 @@ public class Player : MonoBehaviour
         GetComponent<SpriteRenderer>().flipX = turnFlag;
         IsDown();
         CheckMoving();
+        WallCheck();
         CheckAnimator();
         Attack();
         CheckHealth();
+        
+    }
+    void WallCheck()
+    {
+        if(turnFlag==false)
+        {
+            Debug.DrawRay(rb.position,Vector3.right, new Color(1, 0, 0));
+            RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.right, 0.3f,LayerMask.GetMask("Platform"));
+            if (hit.collider != null)
+            {
+                WallFlag = true;
+                RunFlag=false;
+                WalkFlag=false;
+                Debug.Log("오른쪽 부분 벽에 붙어있음");
+            }
+            else
+            {
+                WallFlag = false;
+            }
+        }
+        else if(turnFlag==true)
+        {
+            Debug.DrawRay(rb.position,Vector3.left,new Color(1, 0,0));
+            RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.left, 0.3f, LayerMask.GetMask("Platform"));
+            if (hit.collider != null)
+            {
+                RunFlag = false;
+                WalkFlag = false;
+                WallFlag = true;
+                Debug.Log("왼쪽 부분 벽에 붙어있음");
+            }
+            else
+            {
+                WallFlag = false;
+            }
+        }
+        
     }
     void Jump()
     {
@@ -68,14 +108,18 @@ public class Player : MonoBehaviour
             JumpFlag = false;
             DownFlag = false;
             JumpCounter = 0;
-            if(collision.relativeVelocity.y>=6f&& collision.relativeVelocity.y <= 15f)
+            if(!WallFlag)
             {
-                animator.Play("Down-Stand");
+                if (collision.relativeVelocity.y >= 6f && collision.relativeVelocity.y <= 15f)
+                {
+                    animator.Play("Down-Stand");
+                }
+                if (collision.relativeVelocity.y > 15)
+                {
+                    animator.Play("HardDown-Stand");
+                }
             }
-            if (collision.relativeVelocity.y > 15)
-            {
-                animator.Play("HardDown-Stand");
-            }
+
         }
     }
     public void SetLanded()
@@ -150,6 +194,7 @@ public class Player : MonoBehaviour
         animator.SetBool("Is walk", WalkFlag);
         animator.SetBool("Is Jump", JumpFlag);
         animator.SetBool("Is Down", DownFlag);
+        animator.SetBool("Is Wall", WallFlag);
     }
     private void OnDrawGizmos()
     {
