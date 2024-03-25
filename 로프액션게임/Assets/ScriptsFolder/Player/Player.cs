@@ -55,7 +55,7 @@ public class Player : MonoBehaviour
         CheckAnimator();
         Attack();
         CheckHealth();
-        
+        BackSpawn();
     }
     void WallCheck()
     {
@@ -152,7 +152,6 @@ public class Player : MonoBehaviour
             movement.x = -1;
         }
         Speed = Input.GetKey(KeyCode.LeftShift) ? 5 : 2.5f;
-        
     }
     //공격모션 출력 메서드
     void Attack()
@@ -221,6 +220,14 @@ public class Player : MonoBehaviour
         {
             Jump();
             jumpRequest = false;
+        }
+    }
+    void BackSpawn()
+    {
+        if (this.transform.position.y<=-20)
+        {
+            this.transform.position = new Vector2(-5, 1);
+            HP -= 30;
         }
     }
 }

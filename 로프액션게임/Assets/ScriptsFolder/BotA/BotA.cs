@@ -55,9 +55,9 @@ public class BotA : MonoBehaviour
         NextMove = Random.Range(-2, 2);
         Invoke("Think", 5);
     }
-    public int Hp = 3;
+    public static float Hp = 3;
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         if (animator==null)
         {
