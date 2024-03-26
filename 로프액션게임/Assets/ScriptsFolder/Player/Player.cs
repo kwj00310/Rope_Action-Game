@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
     bool DownFlag;
     bool WallFlag;
     bool jumpRequest = false;
+    bool standFlag;
     float curTime;
     float CoolTime=0.1f;
     //벡터 변수
@@ -95,10 +96,12 @@ public class Player : MonoBehaviour
     }
     void Jump()
     {
-        JumpCounter++;
-        rb.AddForce(Vector2.up * JumpPower, ForceMode2D.Impulse);
-        JumpFlag = true;
-            
+        if(!standFlag)
+        {
+            JumpCounter++;
+            rb.AddForce(Vector2.up * JumpPower, ForceMode2D.Impulse);
+            JumpFlag = true;
+        }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -113,10 +116,12 @@ public class Player : MonoBehaviour
                 if (collision.relativeVelocity.y >= 6f && collision.relativeVelocity.y <= 15f)
                 {
                     animator.Play("Down-Stand");
+                    standFlag = true;
                 }
                 if (collision.relativeVelocity.y > 15)
                 {
                     animator.Play("HardDown-Stand");
+                    standFlag = true;
                 }
             }
 
@@ -176,6 +181,10 @@ public class Player : MonoBehaviour
             }
         }
    
+    }
+    void ResetStandFlag()
+    {
+        standFlag = false;
     }
     // 어택에서 푸는 메서드
     void ResetFreeze()
