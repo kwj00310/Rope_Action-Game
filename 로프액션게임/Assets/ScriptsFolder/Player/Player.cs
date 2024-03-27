@@ -9,13 +9,13 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    public static float HP=100;
+    public static float HP = 100;
     //이동관련 변수
     float Speed;            //걷기&달리기 스피드
     float JumpPower = 4;    //점프 강도 설정
-    float curTime;          //현재 진행시간 척도
+    int JumpCounter = 0;    //점프 횟수 체크
+    float curTime;          //현재 쿨타임 진행시간 척도
     float CoolTime = 0.1f;  //쿨타임 주기
-    int JumpCounter=0;      //점프 횟수 체크
     //참조컴포넌트 관련
     Rigidbody2D rb;         //RigidBody 컴포넌트 변수화
     Animator animator;      //Animator 컴포넌트 변수화
@@ -27,11 +27,13 @@ public class Player : MonoBehaviour
     bool JumpFlag;          //애니메이션 점프 플래그
     bool DownFlag;          //애니메이션 떨어지기 플래그
     bool WallFlag;          //애니메이션 벽에 매달리기 플래그
-    bool jumpRequest = false;       //점프 유무 플래그
+    bool jumpRequest = false;//점프 유무 플래그
     bool standFlag;         //애니메이션 다시 서기 애니메이션 출력상태 확인 플래그
+
     //벡터 변수
-    public Vector2 AttackBoxSize;      //어택공간 벡터값
-    Vector2 movement;                   //왼,오른쪽 움직임 상황 벡터
+    public Vector2 RightAttackBoxSize;  //어택공간 벡터값
+    public Vector2 AttackBoxSize;       //왼,오른쪽 움직임 상황 벡터
+    Vector2 movement;
     // 유니티 지원 함수들
     void Start()
     {
@@ -41,7 +43,7 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
-        if (curTime > 0) curTime -= Time.deltaTime; 
+        if (curTime > 0) curTime -= Time.deltaTime;
         movement.x = 0;
         movement.y = rb.velocity.y;
         WalkFlag = false;
@@ -54,16 +56,6 @@ public class Player : MonoBehaviour
         Attack();
         CheckHealth();
         BackSpawn();
-    }
-    private void FixedUpdate()
-
-    {
-        rb.velocity = new Vector2(movement.x * Speed, movement.y);
-        if (jumpRequest)
-        {
-            Jump();
-            jumpRequest = false;
-        }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -88,73 +80,83 @@ public class Player : MonoBehaviour
                     standFlag = true;
                 }
             }
+
+        }
+    }
+    private void FixedUpdate()
+    {
+        rb.velocity = new Vector2(movement.x * Speed, movement.y);
+        if (jumpRequest)
+        {
+            Jump();
+            jumpRequest = false;
         }
     }
     //해당 함수는 벽면에 레이캐스트를 쏴서 Platform이 있는지 확인 후 작동하는 함수
     void WallCheck()
     {
-        if(turnFlag==false)
+        if (turnFlag == false)
         {
-            Debug.DrawRay(rb.position,Vector3.right, new Color(1, 0, 0));
-            RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.right, 0.3f,LayerMask.GetMask("Platform"));
+            Debug.DrawRay(rb.position, Vector3.right, new Color(1, 0, 0));
+            RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.right, 0.3f, LayerMask.GetMask("Platform"));
             if (hit.collider != null)
             {
                 WallFlag = true;
-                RunFlag=false;
-                WalkFlag=false;
-                Debug.Log("오른쪽 부분 벽에 붙어있음");
+                RunFlag = false;
+                WalkFlag = false;
             }
             else
             {
                 WallFlag = false;
             }
         }
-        else if(turnFlag==true)
+        else if (turnFlag == true)
         {
-            Debug.DrawRay(rb.position,Vector3.left,new Color(1, 0,0));
+            Debug.DrawRay(rb.position, Vector3.left, new Color(1, 0, 0));
             RaycastHit2D hit = Physics2D.Raycast(rb.position, Vector2.left, 0.3f, LayerMask.GetMask("Platform"));
             if (hit.collider != null)
             {
                 RunFlag = false;
                 WalkFlag = false;
                 WallFlag = true;
-                Debug.Log("왼쪽 부분 벽에 붙어있음");
             }
             else
             {
                 WallFlag = false;
             }
         }
-        
     }
     //점프하는 함수(점프카운터,점프 실행 및 점프 애니메이션 출력유무)
     void Jump()
     {
-        if(!standFlag)
+        if (!standFlag)
         {
             JumpCounter++;
             rb.AddForce(Vector2.up * JumpPower, ForceMode2D.Impulse);
             JumpFlag = true;
         }
     }
-
-
     //떨어지고 다시 서는 애니메이션에서 x좌표 고정을 풀어주는 함수
     public void SetLanded()
     {
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         animator.SetTrigger("Is Landed");
     }
+    //좌표 고정 함수
+    void StopPosition()
+    {
+        rb.constraints = RigidbodyConstraints2D.FreezeAll;
+    }
     //해당 오브젝트의 y축 가속도가 일정 이하일시 떨어지는 애니메이션 호출
     void IsDown()
     {
-        if(rb.velocity.y<-7f) 
+        if (rb.velocity.y < -7f)
         {
             JumpFlag = false;
             DownFlag = true;
         }
     }
-   //이동관련 왼,오른쪽 유무와 달리기 속도를 관리하는 함수
+    //이동관련 왼,오른쪽 유무와 달리기 속도를 관리하는 함수
     void CheckMoving()
     {
         if (Input.GetKey(KeyCode.D))
@@ -172,42 +174,51 @@ public class Player : MonoBehaviour
     //공격모션 출력 함수 
     void Attack()
     {
-        if (Input.GetMouseButtonDown(0)&&curTime<=0) 
+        if (Input.GetMouseButtonDown(0) && curTime <= 0)
         {
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
             animator.Play("OnePunch");
-            curTime=CoolTime;
-            Vector2 Attack_pos= pos.transform.position;
+            curTime = CoolTime;
+            Vector2 Attack_pos = pos.transform.position;
             // 만약 오른쪽으로 돌고있을시 해당 벡터 값만큼 공격포인트가 이동되게한다.
-            if (turnFlag==true)
+            if (turnFlag == true)
             {
                 Attack_pos += new Vector2(-0.432f, 0);
             }
-            //Collider2D로 박스 안 만큼 충돌한 오브젝트를 배열로 받아옴
             Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(Attack_pos, AttackBoxSize, 0);
             foreach (Collider2D obj in collider2Ds)
             {
-                if (obj.tag == "Enemy")         //tag가 Enemy일 시 가동되는 함수
+                if (obj.tag == "Enemy")
                 {
                     obj.GetComponent<BotA>().TakeDamage(1);
                 }
             }
         }
-   
+
+    }
+    //다시 서기 점프 가능 유무 함수(다시 서기 애니메이션 후 호출)
+    void ResetStandFlag()
+    {
+        standFlag = false;
+    }
+    // 공격모션에서 풀어주는 함수(공격 애니메이션 후 호출)
+    void ResetFreeze()
+    {
+        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        animator.SetTrigger("End Motion");
     }
     //애니메이션 출력 관련 함수
     void CheckAnimator()
     {
         if (Input.GetKey(KeyCode.LeftShift)) RunFlag = true;
         if (Mathf.Abs(movement.x) == 1) WalkFlag = true;
-        if (Input.GetKeyDown(KeyCode.F)&&JumpCounter < 2) jumpRequest = true;
+        if (Input.GetKeyDown(KeyCode.F) && JumpCounter < 2) jumpRequest = true;
         animator.SetBool("Is Run", RunFlag);
         animator.SetBool("Is walk", WalkFlag);
         animator.SetBool("Is Jump", JumpFlag);
         animator.SetBool("Is Down", DownFlag);
         animator.SetBool("Is Wall", WallFlag);
     }
-
     //히트박스 크기 및 위치 확인용 함수
     private void OnDrawGizmos()
     {
@@ -222,7 +233,7 @@ public class Player : MonoBehaviour
     //(임시) 체력 0이하 비활성화 함수
     void CheckHealth()
     {
-        if(HP<=0)
+        if (HP <= 0)
         {
             gameObject.SetActive(false);
         }
@@ -230,7 +241,7 @@ public class Player : MonoBehaviour
     //(임시) 일정 y좌표값 떨어질 시 호출되는 함수
     void BackSpawn()
     {
-        if (this.transform.position.y<=-20)
+        if (this.transform.position.y <= -20)
         {
             this.transform.position = new Vector2(-5, 1);
             HP -= 30;
