@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     //이동관련 변수
     float Speed;            //걷기&달리기 스피드
     float JumpPower = 4;    //점프 강도 설정
-    int JumpCounter = 0;    //점프 횟수 체크
+    public int JumpCounter = 0;    //점프 횟수 체크
     float curTime;          //현재 쿨타임 진행시간 척도
     float CoolTime = 0.1f;  //쿨타임 주기
     //참조컴포넌트 관련
@@ -28,7 +28,7 @@ public class Player : MonoBehaviour
     bool DownFlag;          //애니메이션 떨어지기 플래그
     bool WallFlag;          //애니메이션 벽에 매달리기 플래그
     bool jumpRequest = false;//점프 유무 플래그
-    bool standFlag;         //애니메이션 다시 서기 애니메이션 출력상태 확인 플래그
+    public bool standFlag;         //애니메이션 다시 서기 애니메이션 출력상태 확인 플래그
 
     //벡터 변수
     public Vector2 RightAttackBoxSize;  //어택공간 벡터값
@@ -174,27 +174,29 @@ public class Player : MonoBehaviour
     //공격모션 출력 함수 
     void Attack()
     {
-        if (Input.GetMouseButtonDown(0) && curTime <= 0)
+        if (!standFlag)
         {
-            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-            animator.Play("OnePunch");
-            curTime = CoolTime;
-            Vector2 Attack_pos = pos.transform.position;
-            // 만약 오른쪽으로 돌고있을시 해당 벡터 값만큼 공격포인트가 이동되게한다.
-            if (turnFlag == true)
+            if (Input.GetMouseButtonDown(0) && curTime <= 0)
             {
-                Attack_pos += new Vector2(-0.432f, 0);
-            }
-            Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(Attack_pos, AttackBoxSize, 0);
-            foreach (Collider2D obj in collider2Ds)
-            {
-                if (obj.tag == "Enemy")
+                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+                animator.Play("OnePunch");
+                curTime = CoolTime;
+                Vector2 Attack_pos = pos.transform.position;
+                // 만약 오른쪽으로 돌고있을시 해당 벡터 값만큼 공격포인트가 이동되게한다.
+                if (turnFlag == true)
                 {
-                    obj.GetComponent<BotA>().TakeDamage(1);
+                    Attack_pos += new Vector2(-0.432f, 0);
+                }
+                Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(Attack_pos, AttackBoxSize, 0);
+                foreach (Collider2D obj in collider2Ds)
+                {
+                    if (obj.tag == "Enemy")
+                    {
+                        obj.GetComponent<BotA>().TakeDamage(1);
+                    }
                 }
             }
         }
-
     }
     //다시 서기 점프 가능 유무 함수(다시 서기 애니메이션 후 호출)
     void ResetStandFlag()
