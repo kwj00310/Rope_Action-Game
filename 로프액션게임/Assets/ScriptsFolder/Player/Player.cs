@@ -19,8 +19,10 @@ public class Player : MonoBehaviour
     //참조컴포넌트 관련
     Rigidbody2D rb;         //RigidBody 컴포넌트 변수화
     Animator animator;      //Animator 컴포넌트 변수화
+    SpriteRenderer spriteRenderer;
     public Transform pos;   //Transform 컴포넌트 변수화(히트박스를 가져옴)
     //플래그 변수
+    bool IsDamaged = false;
     bool WalkFlag;          //애니메이션 걷기 플래그
     bool turnFlag;          //애니메이션 돌기 플래그(Renderer.Filp.X)
     bool RunFlag;           //애니메이션 달리기 플래그
@@ -31,12 +33,14 @@ public class Player : MonoBehaviour
     public bool standFlag;         //애니메이션 다시 서기 애니메이션 출력상태 확인 플래그
 
     //벡터 변수
+    Vector2 attackedVelocity;
     public Vector2 RightAttackBoxSize;  //어택공간 벡터값
     public Vector2 AttackBoxSize;       //왼,오른쪽 움직임 상황 벡터
     Vector2 movement;
     // 유니티 지원 함수들
     void Start()
     {
+        spriteRenderer= GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
@@ -82,10 +86,41 @@ public class Player : MonoBehaviour
             }
 
         }
+        if (collision.gameObject.tag=="Enemy")
+        {
+            
+            rb.AddForce(attackedVelocity, ForceMode2D.Impulse);
+            HP -= 10;
+            OnDamaged(collision.transform.position);
+        }
+    }
+    void OnDamaged(Vector2 targetPos)
+    {
+        IsDamaged = true;
+        gameObject.layer = 3;
+        spriteRenderer.color = new Color(1, 1, 1, 0.5f);
+        int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
+        rb.AddForce(new Vector2(dirc,1)*4,ForceMode2D.Impulse);
+
+        StartCoroutine(ResetDamageState());
+        Invoke("Returnlayer", 3f);
+    }
+    void Returnlayer()
+    {
+        spriteRenderer.color = Color.white;
+        gameObject.layer = 0;
+    }
+    IEnumerator ResetDamageState()
+    {
+        yield return new WaitForSeconds(1f);
+        IsDamaged = false;
     }
     private void FixedUpdate()
     {
-        rb.velocity = new Vector2(movement.x * Speed, movement.y);
+        if(!IsDamaged)
+        {
+            rb.velocity = new Vector2(movement.x * Speed, rb.velocity.y);
+        }
         if (jumpRequest)
         {
             Jump();
@@ -174,10 +209,8 @@ public class Player : MonoBehaviour
     //공격모션 출력 함수 
     void Attack()
     {
-        if (!standFlag)
-        {
-            if (Input.GetMouseButtonDown(0) && curTime <= 0)
-            {
+          if (Input.GetMouseButtonDown(0) && curTime <= 0&&!standFlag)
+          {
                 rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
                 animator.Play("OnePunch");
                 curTime = CoolTime;
@@ -191,12 +224,11 @@ public class Player : MonoBehaviour
                 foreach (Collider2D obj in collider2Ds)
                 {
                     if (obj.tag == "Enemy")
-                    {
+                    { 
                         obj.GetComponent<BotA>().TakeDamage(1);
                     }
                 }
-            }
-        }
+          }
     }
     //다시 서기 점프 가능 유무 함수(다시 서기 애니메이션 후 호출)
     void ResetStandFlag()
