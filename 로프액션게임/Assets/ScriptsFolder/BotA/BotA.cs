@@ -8,9 +8,12 @@ public class BotA : MonoBehaviour
 {
     Rigidbody2D rb;
     Animator animator;
+    //테스트용
+    
+    //테스트용 
     bool WalkFlag;
     bool flipFlag=false;
-    public int NextMove;
+    int NextMove;
     
     void Start()
     {
@@ -50,6 +53,9 @@ public class BotA : MonoBehaviour
             Invoke("Think", 5);
         }
     }
+    
+
+
     void Think()
     {
         NextMove = Random.Range(-2, 2);

@@ -33,7 +33,6 @@ public class Player : MonoBehaviour
     public bool standFlag;         //애니메이션 다시 서기 애니메이션 출력상태 확인 플래그
 
     //벡터 변수
-    Vector2 attackedVelocity;
     public Vector2 RightAttackBoxSize;  //어택공간 벡터값
     public Vector2 AttackBoxSize;       //왼,오른쪽 움직임 상황 벡터
     Vector2 movement;
@@ -88,19 +87,18 @@ public class Player : MonoBehaviour
         }
         if (collision.gameObject.tag=="Enemy")
         {
-            
-            rb.AddForce(attackedVelocity, ForceMode2D.Impulse);
-            HP -= 10;
             OnDamaged(collision.transform.position);
         }
     }
-    void OnDamaged(Vector2 targetPos)
+    public void OnDamaged(Vector2 targetPos)
     {
+        animator.Play("Pain");
+        HP -= 10;
         IsDamaged = true;
         gameObject.layer = 3;
         spriteRenderer.color = new Color(1, 1, 1, 0.5f);
         int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
-        rb.AddForce(new Vector2(dirc,1)*4,ForceMode2D.Impulse);
+        rb.AddForce(new Vector2(dirc,1)*2,ForceMode2D.Impulse);
 
         StartCoroutine(ResetDamageState());
         Invoke("Returnlayer", 3f);
