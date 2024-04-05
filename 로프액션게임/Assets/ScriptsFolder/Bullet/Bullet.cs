@@ -10,11 +10,13 @@ public class Bullet : MonoBehaviour
     [SerializeField]
     float bulletSpeed;
     float bulletTimer;
+    BotA TestBot;
     void Start()
     {
         rb=GetComponent<Rigidbody2D>();
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.gravityScale = 0f;
+        TestBot = GetComponent<BotA>();
     }
 
     // Update is called once per frame
@@ -25,10 +27,7 @@ public class Bullet : MonoBehaviour
         Timeout();
         bulletSpeed = 10f;
     }
-    private void FixedUpdate()
-    {
-        rb.velocity = new Vector2(-1*bulletSpeed, 0);
-    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))

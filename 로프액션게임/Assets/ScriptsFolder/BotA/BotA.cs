@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.UIElements;
 
 public class BotA : MonoBehaviour
@@ -12,9 +14,16 @@ public class BotA : MonoBehaviour
     
     //테스트용 
     bool WalkFlag;
-    bool flipFlag=false;
+    public bool flipFlag=false;
     int NextMove;
-    
+    bool isAttacking = false;
+    Vector3 PlayerPos;
+    Vector3 WhereToAtk;
+    public GameObject warning;
+    public GameObject Atk1;
+    GameObject bullet;
+
+
     void Start()
     {
         Think();
@@ -39,6 +48,7 @@ public class BotA : MonoBehaviour
         { 
             Destroy(this.gameObject);
         } 
+        LeftSideAttack();
     }
 
     void FixedUpdate()
@@ -53,7 +63,62 @@ public class BotA : MonoBehaviour
             Invoke("Think", 5);
         }
     }
-    
+    void LeftSideAttack()
+    {
+        if (flipFlag==true)
+        {
+            Debug.DrawRay(rb.transform.position,new Vector2(-4,0), new Color(1, 0, 0));
+            RaycastHit2D leftHit = Physics2D.Raycast(rb.transform.position, new Vector2(-1, 0), 4, LayerMask.GetMask("Player"));
+            if(leftHit.collider!=null) 
+            {
+                PlayerPos = leftHit.transform.position;
+                StartCoroutine("BeforeAttack");
+            }
+        }
+        else
+        {
+            Debug.DrawRay(rb.transform.position, new Vector2(4, 0), new Color(1, 0, 0));
+            RaycastHit2D RightHit = Physics2D.Raycast(rb.transform.position, new Vector2(1, 0), 4, LayerMask.GetMask("Player"));
+            if (RightHit.collider != null)
+            {
+                PlayerPos = RightHit.transform.position;
+                StartCoroutine("BeforeAttack");
+            }
+        }
+    }
+
+    //공격하기전 공격할 위치를 표시
+    IEnumerator BeforeAttack()
+    {
+        if (isAttacking == false)
+        {
+            WhereToAtk = PlayerPos;
+            isAttacking = true;
+            Debug.Log("감지된 위치:" + WhereToAtk);
+            Instantiate(warning, WhereToAtk, Quaternion.identity);
+            yield return new WaitForSeconds(2f);
+            StartCoroutine("Attack");
+        }
+    }
+    IEnumerator Attack()
+    {
+        Debug.Log("공격중임");
+
+        if (flipFlag == false)
+        {
+            bullet = Instantiate(Atk1, this.transform.position, Quaternion.Euler(0,0,180f));
+            bullet.GetComponent<Rigidbody2D>().velocity = new Vector2(10, 0);
+        }
+        else if (flipFlag == true)
+        {
+            bullet = Instantiate(Atk1, this.transform.position, Quaternion.Euler(0, 0,0f));
+            bullet.GetComponent<Rigidbody2D>().velocity = new Vector2(-10, 0);
+        }
+        
+        yield return new WaitForSeconds(1f);
+        isAttacking = false;
+    }
+
 
 
     void Think()

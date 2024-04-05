@@ -13,6 +13,7 @@ public class BotA_AtkPat : MonoBehaviour
     GameObject bullet;
 
 
+    
     private void OnTriggerStay2D(Collider2D collision)
     {
         if (collision.tag == "Player")

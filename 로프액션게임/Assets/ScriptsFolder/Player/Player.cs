@@ -106,7 +106,7 @@ public class Player : MonoBehaviour
     void Returnlayer()
     {
         spriteRenderer.color = Color.white;
-        gameObject.layer = 0;
+        gameObject.layer = 8;
     }
     IEnumerator ResetDamageState()
     {
