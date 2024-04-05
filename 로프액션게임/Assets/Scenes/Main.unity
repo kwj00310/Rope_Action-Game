@@ -5770,6 +5770,7 @@ MonoBehaviour:
   standFlag: 0
   RightAttackBoxSize: {x: 0, y: 0}
   AttackBoxSize: {x: 0.27, y: 0.26}
+  Holo: {fileID: 2166774391907936642, guid: 0b327437ae45907458d2436a2169eedf, type: 3}
 --- !u!1 &1705863388
 GameObject:
   m_ObjectHideFlags: 0

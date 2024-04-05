@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor.U2D.Sprites;
 using UnityEngine;
+using UnityEngine.Diagnostics;
 
 public class Bullet : MonoBehaviour
 {
@@ -32,9 +33,14 @@ public class Bullet : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            Debug.Log("Ãæµ¹ µÊ!");
             Player playerComponent = collision.gameObject.GetComponent<Player>();
             playerComponent.OnDamaged(collision.transform.position);
+            Destroy(gameObject);
+        }
+        else if (collision.gameObject.CompareTag("PlayerHolo"))
+        {
+            PlayerHolo HoloComponent = collision.gameObject.GetComponent<PlayerHolo>();
+            HoloComponent.OnDamaged();
             Destroy(gameObject);
         }
         else if (collision.gameObject.CompareTag("Platform"))

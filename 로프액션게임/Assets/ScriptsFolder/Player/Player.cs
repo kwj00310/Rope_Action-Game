@@ -35,6 +35,7 @@ public class Player : MonoBehaviour
     //벡터 변수
     public Vector2 RightAttackBoxSize;  //어택공간 벡터값
     public Vector2 AttackBoxSize;       //왼,오른쪽 움직임 상황 벡터
+    public GameObject Holo;
     Vector2 movement;
     // 유니티 지원 함수들
     void Start()
@@ -59,6 +60,10 @@ public class Player : MonoBehaviour
         Attack();
         CheckHealth();
         BackSpawn();
+        if(Input.GetKeyDown(KeyCode.C))
+        {
+            MakeHolo();
+        }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -96,12 +101,26 @@ public class Player : MonoBehaviour
         HP -= 10;
         IsDamaged = true;
         gameObject.layer = 3;
+        JumpCounter = 0;
         spriteRenderer.color = new Color(1, 1, 1, 0.5f);
         int dirc = transform.position.x - targetPos.x > 0 ? 1 : -1;
         rb.AddForce(new Vector2(dirc,1)*2,ForceMode2D.Impulse);
 
         StartCoroutine(ResetDamageState());
         Invoke("Returnlayer", 3f);
+    }
+    public void MakeHolo()
+    {
+        if(turnFlag&&Input.GetKey(KeyCode.A)) 
+        {
+            GameObject M_Holo = Instantiate(Holo,rb.transform.position, Quaternion.Euler(0, 180f, 0f));
+            transform.Translate(-1.5f, 0, 0);
+        }
+        else if (!turnFlag&& Input.GetKey(KeyCode.D)) 
+        {
+            GameObject M_Holo = Instantiate(Holo, rb.transform.position, Quaternion.Euler(0, 0, 0));
+            transform.Translate(1.5f, 0, 0);
+        }
     }
     void Returnlayer()
     {
