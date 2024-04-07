@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Burst.CompilerServices;
+using UnityEditor.PackageManager.Requests;
 using UnityEditor.SearchService;
 using UnityEditorInternal;
 using UnityEngine;
@@ -31,11 +32,15 @@ public class Player : MonoBehaviour
     bool WallFlag;          //애니메이션 벽에 매달리기 플래그
     bool jumpRequest = false;//점프 유무 플래그
     public bool standFlag;         //애니메이션 다시 서기 애니메이션 출력상태 확인 플래그
+    bool IsPause = false;
+
+    bool SandeFlag=false;
 
     //벡터 변수
     public Vector2 RightAttackBoxSize;  //어택공간 벡터값
     public Vector2 AttackBoxSize;       //왼,오른쪽 움직임 상황 벡터
     public GameObject Holo;
+    public GameObject SandePrefab;
     Vector2 movement;
     // 유니티 지원 함수들
     void Start()
@@ -64,6 +69,8 @@ public class Player : MonoBehaviour
         {
             MakeHolo();
         }
+        Pause();
+        sande();
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -95,6 +102,22 @@ public class Player : MonoBehaviour
             OnDamaged(collision.transform.position);
         }
     }
+    void Pause()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            IsPause = !IsPause;
+        }
+        if (IsPause)
+        {
+            Time.timeScale = 0f;
+        }
+        else if (!IsPause)
+        {
+            Time.timeScale = 1f;
+        }
+
+    }
     public void OnDamaged(Vector2 targetPos)
     {
         animator.Play("Pain");
@@ -111,17 +134,43 @@ public class Player : MonoBehaviour
     }
     public void MakeHolo()
     {
-        if(turnFlag&&Input.GetKey(KeyCode.A)) 
+        if (turnFlag && Input.GetKey(KeyCode.A))
         {
-            GameObject M_Holo = Instantiate(Holo,rb.transform.position, Quaternion.Euler(0, 180f, 0f));
+            GameObject M_Holo = Instantiate(Holo, rb.transform.position, Quaternion.Euler(0, 180f, 0f));
             transform.Translate(-1.5f, 0, 0);
         }
-        else if (!turnFlag&& Input.GetKey(KeyCode.D)) 
+        else if (!turnFlag && Input.GetKey(KeyCode.D))
         {
             GameObject M_Holo = Instantiate(Holo, rb.transform.position, Quaternion.Euler(0, 0, 0));
             transform.Translate(1.5f, 0, 0);
         }
+        else if (turnFlag) 
+        {
+            GameObject M_Holo = Instantiate(Holo, rb.transform.position, Quaternion.Euler(0, 180f, 0f));
+            transform.Translate(1.5f, 0, 0);
+        }
+        else if (!turnFlag)
+        {
+            GameObject M_Holo = Instantiate(Holo, rb.transform.position, Quaternion.Euler(0, 0, 0));
+            transform.Translate(-1.5f, 0, 0);
+        }
     }
+    //테스트 함수
+    void sande()
+    {
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            SandeFlag = !SandeFlag;
+        }
+        if(SandeFlag)
+        {
+            GameObject gameObject = Instantiate(SandePrefab, rb.transform.position, Quaternion.Euler(0, 0, 0));
+        }
+        
+    }
+
+
+    //테스트 중 
     void Returnlayer()
     {
         spriteRenderer.color = Color.white;

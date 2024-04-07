@@ -9,7 +9,6 @@ public class Bullet : MonoBehaviour
 {
     Rigidbody2D rb;
     [SerializeField]
-    float bulletSpeed;
     float bulletTimer;
     BotA TestBot;
     void Start()
@@ -26,7 +25,6 @@ public class Bullet : MonoBehaviour
         GetComponent<SpriteRenderer>().flipX = true;
         bulletTimer += Time.deltaTime;
         Timeout();
-        bulletSpeed = 10f;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
