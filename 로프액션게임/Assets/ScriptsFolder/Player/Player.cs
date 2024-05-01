@@ -71,6 +71,7 @@ public class Player : MonoBehaviour
         }
         Pause();
         sande();
+        test();
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -287,6 +288,7 @@ public class Player : MonoBehaviour
                     Attack_pos += new Vector2(-0.432f, 0);
                 }
                 Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(Attack_pos, AttackBoxSize, 0);
+            
                 foreach (Collider2D obj in collider2Ds)
                 {
                     if (obj.tag == "Enemy")
@@ -346,5 +348,21 @@ public class Player : MonoBehaviour
             this.transform.position = new Vector2(-5, 1);
             HP -= 30;
         }
+    }
+    void test()
+    {
+        if(Input.GetMouseButton(0))
+        {
+            print("왼쪽 클릭했음");
+        }
+        if (Input.GetMouseButton(2))
+        {
+            print("휠 클릭했음");
+        }
+        if (Input.GetMouseButton(1))
+        {
+            print("오른쪽 클릭했음");
+        }
+
     }
 }

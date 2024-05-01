@@ -13,7 +13,7 @@ public class TimeSlow : MonoBehaviour
     }
     public void ResetGreen()
     {
-        Green += 0.01f;
+        Green += 0.0085f;
         if (Green >= 255)
         {
             Green = 0;

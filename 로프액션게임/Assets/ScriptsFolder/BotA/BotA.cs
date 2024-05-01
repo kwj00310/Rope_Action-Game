@@ -23,7 +23,6 @@ public class BotA : MonoBehaviour
     public GameObject Atk1;
     GameObject bullet;
 
-
     void Start()
     {
         Think();
@@ -34,6 +33,7 @@ public class BotA : MonoBehaviour
 
     private void Update()
     {
+
         flipFlag = false;
         WalkFlag= false;
         rb.velocity = new Vector2(NextMove, rb.velocity.y);
@@ -74,6 +74,7 @@ public class BotA : MonoBehaviour
                 PlayerPos = leftHit.transform.position;
                 StartCoroutine("BeforeAttack");
             }
+            
         }
         else
         {
@@ -84,7 +85,9 @@ public class BotA : MonoBehaviour
                 PlayerPos = RightHit.transform.position;
                 StartCoroutine("BeforeAttack");
             }
+            
         }
+        
     }
 
     //공격하기전 공격할 위치를 표시

@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class BotUI : MonoBehaviour
 {
+    [SerializeField]
     public Slider HpBar;
     public float MaxHP=3;
     void Start()
@@ -18,7 +19,7 @@ public class BotUI : MonoBehaviour
     {
         HandleHp();
     }
-
+    
     private void HandleHp()
     {
         HpBar.value = BotA.Hp/MaxHP;
