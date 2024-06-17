@@ -10,9 +10,9 @@ public class BotA : MonoBehaviour
 {
     Rigidbody2D rb;
     Animator animator;
-    //Å×½ºÆ®¿ë
+    //í…ŒìŠ¤íŠ¸ìš©
     
-    //Å×½ºÆ®¿ë 
+    //í…ŒìŠ¤íŠ¸ìš© 
     bool WalkFlag;
     public bool flipFlag=false;
     int NextMove;
@@ -90,14 +90,14 @@ public class BotA : MonoBehaviour
         
     }
 
-    //°ø°İÇÏ±âÀü °ø°İÇÒ À§Ä¡¸¦ Ç¥½Ã
+    //ê³µê²©í•˜ê¸°ì „ ê³µê²©í•  ìœ„ì¹˜ë¥¼ í‘œì‹œ
     IEnumerator BeforeAttack()
     {
         if (isAttacking == false)
         {
             WhereToAtk = PlayerPos;
             isAttacking = true;
-            Debug.Log("°¨ÁöµÈ À§Ä¡:" + WhereToAtk);
+            Debug.Log("ê°ì§€ëœ ìœ„ì¹˜:" + WhereToAtk);
             Instantiate(warning, WhereToAtk, Quaternion.identity);
             yield return new WaitForSeconds(2f);
             StartCoroutine("Attack");
@@ -105,7 +105,7 @@ public class BotA : MonoBehaviour
     }
     IEnumerator Attack()
     {
-        Debug.Log("°ø°İÁßÀÓ");
+        Debug.Log("ê³µê²©ì¤‘ì„");
 
         if (flipFlag == false)
         {
@@ -129,13 +129,13 @@ public class BotA : MonoBehaviour
         NextMove = Random.Range(-2, 2);
         Invoke("Think", 5);
     }
-    public static float Hp = 3;
+    public float Hp = 3;
 
     public void TakeDamage(float damage)
     {
         if (animator==null)
         {
-            Debug.LogError("¾Ö´Ï¸ŞÀÌÅÍ ¿À·ù!");
+            Debug.LogError("ì• ë‹ˆë©”ì´í„° ì˜¤ë¥˜!");
         }
         animator.Play("Hit");
         Hp -= damage;
