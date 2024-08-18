@@ -129,7 +129,7 @@ public class BotA : MonoBehaviour
         NextMove = Random.Range(-2, 2);
         Invoke("Think", 5);
     }
-    public float Hp = 3;
+    public float Hp = 3; //HP 전부 깎이는 버그 수정해야함 
 
     public void TakeDamage(float damage)
     {
